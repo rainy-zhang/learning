@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <bean id="userService" class="org.rainy.minis.service.UserServiceImpl">
+        <property type="String" name="name" value="rainy"/>
+        <constructor-arg type="org.rainy.minis.repository.UserRepository" name="userRepository" ref="userRepository"/>
+    </bean>
+
+    <bean id="userRepository" class="org.rainy.minis.repository.UserRepository" lazy-init="true">
+        <property type="org.rainy.minis.service.UserServiceImpl" name="userService" ref="userService"/>
+    </bean>
+
+</beans>
+
+

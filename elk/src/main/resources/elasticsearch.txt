@@ -1,0 +1,189 @@
+# profile: true 开启性能分析
+
+# 指定字段查询
+GET /movies/_search?q=year:2012
+{
+  "profile": true
+}
+
+# 范查询，对所有字段查询
+GET /movies/_search?q=2012
+
+# 使用引号,只能查询到title包含 Beautiful Mind 的文档
+GET /movies/_search?q=title:"Beautiful Mind"
+
+# 不使用引号，可以查询到title包含 Beautiful或者Mind 的文档
+GET /movies/_search?q=title:Beautiful Mind
+
+# 分组查询
+GET /movies/_search?q=title:(Beautiful AND Mind)
+GET /movies/_search?q=title:(Beautiful OR Mind)
+# 包含Beautiful，不包含Mind
+GET /movies/_search?q=title:(Beautiful NOT Mind)
+# 不包含Beautiful，包含Mind
+GET /movies/_search?q=title:(NOT Beautiful Mind)
+
+# 范围查询
+GET /movies/_search?q=year:>=1980
+
+# 通配符查询，包含 b 的所有文档。效率很低
+GET /movies/_search?q=title:b*
+
+# 模糊匹配, 模糊1个字符
+GET /movies/_search?q=title:beautifl~1
+# 模糊匹配，模糊2个字符
+GET /movies/_search?q=title:beautifa~2
+
+
+## RequestBody查询
+
+# 对日期排序
+POST kibana_sample_data_ecommerce/_search
+{
+  "sort": [{"order_date":  "desc"}],
+  "query": {
+    "match_all": {}
+  }
+}
+
+# 查询固定字段
+POST kibana_sample_data_ecommerce/_search
+{
+  "sort": [{"order_date":  "desc"}],
+  "_source": ["category","customer_first_name", "order_date", "order_id", "customer_id"],
+  "query": {
+    "match_all": {}
+  }
+}
+
+# 脚本字段，订单时间拼接_hello
+POST kibana_sample_data_ecommerce/_search
+{
+  "query": {"match_all": {}},
+  "script_fields": {
+    "new_field": {
+      "script": {
+        "lang": "painless",
+        "source": "doc['order_date'].value+'__hello'"
+      }
+    }
+  }
+}
+
+#  match可以搜索到包含Last 或者 Christams
+# 如果需要两个词同时出现可以用operator: "and"
+POST movies/_search
+{
+  "query": {
+    "match": {
+      "title": {
+        "query": "Last Christams",
+        "operator": "and"
+      }
+    }
+  }
+}
+
+# 短语搜索：match_phrase：条件中的词必须全部按照顺序出现
+# slop: 1表示 one love中间可以出现任意一个单词
+POST movies/_search
+{
+  "query": {
+    "match_phrase": {
+      "title": {
+        "query": "one love",
+        "slop": 1
+      }
+    }
+  }
+}
+
+
+# 聚合查询
+# 按照目的地进行分桶统计
+GET kibana_sample_data_flights/_search
+{
+  "size": 0,
+  "aggs": {
+    "flight_dest": {
+      "terms": {
+        "field": "DestCountry"
+      },
+      "aggs": {
+        "average_price": {
+          "avg": {
+            "field": "AvgTicketPrice"
+          }
+        },
+        "max_price": {
+          "max": {
+            "field": "AvgTicketPrice"
+            }
+        },
+        "min_price": {
+          "min": {
+            "field": "AvgTicketPrice"
+            }
+        }
+      }
+    }
+  }
+}
+
+# 统计价格+天气
+GET kibana_sample_data_flights/_search
+{
+  "size": 0,
+  "aggs": {
+    "flight_dest": {
+      "terms": {
+        "field": "DestCountry",
+        "size": 10
+      },
+      "aggs": {
+        "stats_price": {
+          "stats": {
+            "field": "AvgTicketPrice"
+          }
+        },
+        "weather": {
+          "terms": {
+            "field": "DestWeather",
+            "size": 5
+          }
+        }
+      }
+    }
+  }
+}
+
+# bool 查询
+# must:必须匹配，影响算分。如果没有must，should中至少满足一个查询条件
+# should: 选择性匹配，影响算分
+# must_not: 必须不匹配
+# filter: 必须匹配
+POST /products/_search
+{
+  "query": {
+    "bool" : {
+      "must" : {
+        "term" : { "price" : "30" }
+      },
+      "filter": {
+        "term" : { "avaliable" : "true" }
+      },
+      "must_not" : {
+        "range" : {
+          "price" : { "lte" : 10 }
+        }
+      },
+      "should" : [
+        { "term" : { "productID.keyword" : "JODL-X-1937-#pV7" } },
+        { "term" : { "productID.keyword" : "XHDK-A-1293-#fJ3" } }
+      ],
+      "minimum_should_match" :1
+    }
+  }
+}
+
+
