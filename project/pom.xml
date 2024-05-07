@@ -12,6 +12,7 @@
     <modules>
         <module>mini-spring</module>
         <module>mini-springmvc</module>
+        <module>expression</module>
     </modules>
     <artifactId>project</artifactId>
 
