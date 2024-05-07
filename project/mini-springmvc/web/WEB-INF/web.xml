@@ -1,0 +1,22 @@
+<web-app id="WebApp_ID">
+    <servlet>
+        <servlet-name>mini-springmvc</servlet-name>
+        <servlet-class>org.rainy.minis.web.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/mini-mvc-servlet.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mini-springmvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>applicationContext.xml</param-value>
+    </context-param>
+    <listener>
+        <listener-class>org.rainy.minis.web.listener.ContextLoaderListener</listener-class>
+    </listener>
+</web-app>

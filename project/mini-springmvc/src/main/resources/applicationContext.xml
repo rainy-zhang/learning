@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <bean id="userService" class="org.rainy.minis.web.test.service.UserServiceImpl">
+        <property type="String" name="name" value="rainy"/>
+        <constructor-arg type="org.rainy.minis.web.test.repository.UserRepository" name="userRepository"
+                         ref="userRepository"/>
+    </bean>
+
+    <bean id="userRepository" class="org.rainy.minis.web.test.repository.UserRepository" lazy-init="true">
+        <property type="org.rainy.minis.web.test.service.UserServiceImpl" name="userService" ref="userService"/>
+    </bean>
+
+    <bean id="roleRepository" class="org.rainy.minis.web.test.repository.RoleRepository" lazy-init="true">
+    </bean>
+
+    <bean id="userController" class="org.rainy.minis.web.test.controller.UserController">
+    </bean>
+
+    <bean id="webBindingInitializer" class="org.rainy.minis.web.property.WebBindingInitializer">
+        <property type="java.util.Map" name="propertyEditors">
+            <map>
+                <entry key="java.util.Date" value="org.rainy.minis.web.property.DateEditor"/>
+            </map>
+        </property>
+    </bean>
+
+</beans>
+
+
